@@ -1,0 +1,7 @@
+{
+  "host": "https://example.com",
+  "users": 5,
+  "spawn_rate": 1,
+  "run_time": "30s",
+  "invalid_json": this is not valid json
+}

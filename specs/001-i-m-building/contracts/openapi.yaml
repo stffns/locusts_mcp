@@ -1,0 +1,89 @@
+openapi: 3.0.3
+info:
+  title: Simulation Runner Contracts (Future MCP-Ready)
+  version: 0.1.0
+paths:
+  /simulate/validate:
+    post:
+      summary: Validate simulation parameters
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateRequest'
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateResponse'
+  /simulate/run:
+    post:
+      summary: Start a simulation run (headless)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunRequest'
+      responses:
+        '202':
+          description: Run accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunAccepted'
+components:
+  schemas:
+    Context:
+      type: object
+      properties:
+        application:
+          type: string
+        environment:
+          type: string
+          enum: [dev, staging, prod-like]
+        country:
+          type: string
+    ValidateRequest:
+      type: object
+      properties:
+        simulation:
+          type: string
+        context:
+          $ref: '#/components/schemas/Context'
+      required: [simulation, context]
+    ValidateResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        reasons:
+          type: array
+          items:
+            type: string
+        suggestions:
+          type: array
+          items:
+            type: string
+      required: [valid]
+    RunRequest:
+      type: object
+      properties:
+        simulation:
+          type: string
+        context:
+          $ref: '#/components/schemas/Context'
+        overrides:
+          type: object
+      required: [simulation, context]
+    RunAccepted:
+      type: object
+      properties:
+        run_id:
+          type: string
+        status:
+          type: string
+          enum: [accepted]
