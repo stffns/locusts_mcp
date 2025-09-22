@@ -1,50 +1,74 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Locust Performance App Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Dynamic Template-Driven Configuration
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+- Single source of truth is a configuration template file at `data/<name>.{yaml|yml|json}`.
+- Minimum required fields: `host` (string), `users` (int), `spawn_rate` (float), `run_time` (string, Locust duration format like "5m").
+- Optional fields: `endpoints` (list of {`path`, `method`, `weight`, `headers?`, `payload?`}), `think_time_seconds` (float), `seed` (int), `report_html` (path).
+- Precedence for values: CLI args > environment variables > template file defaults.
+- Environment variables: `CONFIG_PATH` (path to template), `USERS`, `SPAWN_RATE`, `RUN_TIME`, `HOST`, `REPORT_HTML`.
+- If `CONFIG_PATH` is unset, default to `data/config.yaml` if present, else `data/config.json`.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+Example minimal template (YAML):
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+```yaml
+host: https://example.com
+users: 10
+spawn_rate: 2
+run_time: 2m
+endpoints:
+  - path: "/"
+    method: GET
+    weight: 1
+```
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### II. Minimal Viable Locust Implementation
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+- Provide a `locustfile.py` that:
+  - Loads the configuration using the precedence above.
+  - Defines a single `HttpUser` whose tasks are built dynamically from `endpoints` with weighted selection.
+  - Sets wait time using `between(think_time_seconds, think_time_seconds)` if provided; otherwise Locust default.
+  - Accepts headless execution using standard Locust flags (`--headless`, `--users`, `--spawn-rate`, `--run-time`, `--host`).
+- Headless is the default execution mode for CI and non-interactive runs.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### III. CLI and Overrides
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+- Primary run command: `locust -f locustfile.py --headless` with optional overrides (`--users`, `--spawn-rate`, `--run-time`, `--host`).
+- A lightweight wrapper is allowed but not required; configuration path is provided via `CONFIG_PATH` env var.
+- On startup, print the resolved config (sanitized) and the precedence source per key.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### IV. Observability and Output
+
+- Use Locust built-ins for summary stats. Support optional `--html <path>` or `REPORT_HTML` env var; default to `data/results/report.html` when not specified.
+- Non-zero exit when configuration is invalid or required keys are missing.
+
+### V. Simplicity First
+
+- No external databases or custom UI. Keep dependencies minimal.
+- Only `locust` and (if YAML templates are used) `pyyaml` are allowed.
+
+## Additional Constraints
+
+- Runtime: Python 3.11+.
+- Dependencies: `locust>=2.23,<3.0`; `pyyaml>=6,<7` when using YAML; JSON requires no extra dependency.
+- File layout: `locustfile.py` at repo root. Templates live under `data/`. Reports stored under `data/results/`.
+- Determinism: when `seed` is set, initialize Python `random` and any weighted choices deterministically.
+- Validation: fail fast with a clear message listing missing required keys.
+
+## Workflow and Acceptance
+
+- Provide one example template at `data/config.example.yaml` (or JSON equivalent) matching the schema.
+- With only the example template and no CLI overrides, the following must execute successfully:
+  - `CONFIG_PATH=data/config.example.yaml locust -f locustfile.py --headless`
+- CLI overrides take precedence over template/env and are reflected in the printed resolved config.
+- Optional HTML report path can be specified via `--html` or `REPORT_HTML`; file is created successfully.
+- A `--check-config` mode (or equivalent code path) validates the template and exits without running traffic.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+- This constitution defines the minimum bar for the Locust app. Implementations must meet these requirements before extension.
+- Amendments require updating this document alongside any code or template schema changes.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 0.1.0 | **Ratified**: 2025-09-22 | **Last Amended**: 2025-09-22

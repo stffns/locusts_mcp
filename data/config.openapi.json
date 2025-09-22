@@ -1,0 +1,61 @@
+{
+  "host": "https://api.example.com",
+  "users": 5,
+  "spawn_rate": 1,
+  "run_time": "30s",
+  "seed": 42,
+  "think_time_seconds": 1.0,
+  "endpoints": [
+    {
+      "path": "/api/v1/health",
+      "method": "GET",
+      "weight": 1,
+      "headers": {
+        "Accept": "application/json"
+      }
+    },
+    {
+      "path": "/api/v1/users",
+      "method": "GET",
+      "weight": 2,
+      "headers": {
+        "Accept": "application/json",
+        "Authorization": "Bearer test-token"
+      }
+    },
+    {
+      "path": "/api/v1/users",
+      "method": "POST",
+      "weight": 1,
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer test-token"
+      },
+      "payload": {
+        "name": "Test User",
+        "email": "test@example.com"
+      }
+    },
+    {
+      "path": "/api/v1/users/123",
+      "method": "PUT",
+      "weight": 1,
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer test-token"
+      },
+      "payload": {
+        "name": "Updated User",
+        "email": "updated@example.com"
+      }
+    },
+    {
+      "path": "/api/v1/users/456",
+      "method": "DELETE",
+      "weight": 1,
+      "headers": {
+        "Authorization": "Bearer test-token"
+      }
+    }
+  ]
+}
