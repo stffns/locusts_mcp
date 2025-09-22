@@ -1,0 +1,20 @@
+[project]
+name = "locusts-mcp"
+version = "0.1.0"
+description = "Dynamic Locust performance testing MCP server with template-driven configuration"
+readme = "README.md"
+authors = [
+    { name = "Jayson Steffens", email = "jayson.steffens@pluxeegroup.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "locust>=2.40.5",
+    "mcp>=1.14.1",
+]
+
+[project.scripts]
+locusts-mcp = "src.locusts_mcp.server:main"
+
+[build-system]
+requires = ["uv_build>=0.8.19,<0.9.0"]
+build-backend = "uv_build"

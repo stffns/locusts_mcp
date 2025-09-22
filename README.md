@@ -319,9 +319,34 @@ Control traffic distribution with weights:
 }
 ```
 
-## 🚀 MCP Server Readiness
+## 🚀 MCP Integration ✨
 
-This implementation is designed to be easily converted to a Model Context Protocol (MCP) server. See `docs/mcp-mapping.md` for detailed conversion guidance.
+This project includes a **Model Context Protocol (MCP) server** that allows AI agents to execute load tests, validate configurations, and generate test scenarios.
+
+### MCP Server Features
+
+- **🔧 Configuration Management**: Create and validate test configurations
+- **🚀 Load Test Execution**: Run Locust tests with real-time feedback
+- **📊 Results Analysis**: Access HTML reports and test statistics
+- **🤖 AI Integration**: Full MCP protocol support for AI agents
+
+### Quick MCP Setup
+
+```bash
+# Run the MCP server
+uv run python src/locusts_mcp/server.py
+
+# Test the server functionality  
+uv run python test_mcp_full.py
+```
+
+### Available MCP Tools
+
+1. **`create_basic_config`** - Generate test configurations
+2. **`validate_config`** - Validate configuration files  
+3. **`run_load_test`** - Execute load tests with CLI overrides
+
+See [docs/mcp-server-guide.md](docs/mcp-server-guide.md) for complete setup instructions and MCP client configuration.
 
 ## 🐛 Troubleshooting
 

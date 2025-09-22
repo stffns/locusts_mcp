@@ -1,0 +1,23 @@
+{
+  "host": "https://httpbin.org",
+  "users": 5,
+  "spawn_rate": 1,
+  "run_time": "5m",
+  "endpoints": [
+    {
+      "path": "/get",
+      "method": "GET",
+      "weight": 1
+    },
+    {
+      "path": "/post",
+      "method": "GET",
+      "weight": 1
+    },
+    {
+      "path": "/status/200",
+      "method": "GET",
+      "weight": 1
+    }
+  ]
+}
